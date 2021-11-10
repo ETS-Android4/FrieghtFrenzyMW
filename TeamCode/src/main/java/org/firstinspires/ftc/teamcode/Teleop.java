@@ -37,6 +37,7 @@ public class Teleop extends LinearOpMode {
 
     public void runOpMode() {
 
+
        rightFront =  hardwareMap.dcMotor.get("right_front");
        rightBack =  hardwareMap.dcMotor.get("right_back");
        leftFront =  hardwareMap.dcMotor.get("left_front");
@@ -76,12 +77,12 @@ public class Teleop extends LinearOpMode {
                 rightBack.setPower(v4);
             }
             if (gamepad1.dpad_up==true){
-                lifter.setPower(.5);
+                lifter.setPower(-.5);
             }else{
                 lifter.setPower(0);
             }
             if (gamepad1.dpad_down==true){
-                lifter.setPower(-.5);
+                lifter.setPower(.5);
             }else{
                 lifter.setPower(0);
             }

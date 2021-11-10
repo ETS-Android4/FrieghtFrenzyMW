@@ -20,6 +20,8 @@ public class Teleop extends LinearOpMode {
     private DcMotor rightBack;
     private DcMotor leftBack;
 
+    private DcMotor lifter;
+
     private double theta = 22.5;
     private double delta = 45;
     private double speed = 0;
@@ -39,6 +41,7 @@ public class Teleop extends LinearOpMode {
        rightBack =  hardwareMap.dcMotor.get("right_back");
        leftFront =  hardwareMap.dcMotor.get("left_front");
        leftBack =  hardwareMap.dcMotor.get("left_back");
+       lifter =  hardwareMap.dcMotor.get("lifter");
        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
        waitForStart();
@@ -72,10 +75,21 @@ public class Teleop extends LinearOpMode {
                 leftBack.setPower(v3);
                 rightBack.setPower(v4);
             }
+            if (gamepad1.dpad_up==true){
+                lifter.setPower(.5);
+            }else{
+                lifter.setPower(0);
+            }
+            if (gamepad1.dpad_down==true){
+                lifter.setPower(-.5);
+            }else{
+                lifter.setPower(0);
+            }
+
+
+
         }
+
 
     }
 }
-
-
-//skdjflkjsdflkjasv]fblahbalhbalgabhbalabha

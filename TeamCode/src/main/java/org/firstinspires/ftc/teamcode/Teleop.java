@@ -21,6 +21,7 @@ public class Teleop extends LinearOpMode {
     private DcMotor leftBack;
 
     private DcMotor lifter;
+    private DcMotor intake;
 
     private double theta = 22.5;
     private double delta = 45;
@@ -43,6 +44,7 @@ public class Teleop extends LinearOpMode {
        leftFront =  hardwareMap.dcMotor.get("left_front");
        leftBack =  hardwareMap.dcMotor.get("left_back");
        lifter =  hardwareMap.dcMotor.get("lifter");
+       intake =  hardwareMap.dcMotor.get("intake");
        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
        waitForStart();
@@ -76,18 +78,33 @@ public class Teleop extends LinearOpMode {
                 leftBack.setPower(v3);
                 rightBack.setPower(v4);
             }
-            if (gamepad1.dpad_up==true){
-                lifter.setPower(-.5);
-            }else{
+
+            if (gamepad1.dpad_up==true&&gamepad1.dpad_down==true){
                 lifter.setPower(0);
-            }
-            if (gamepad1.dpad_down==true){
-                lifter.setPower(.5);
             }else{
-                lifter.setPower(0);
+                if (gamepad1.dpad_up==true){
+                    lifter.setPower(-.5);
+                }
+                if (gamepad1.dpad_down==true){
+                    lifter.setPower(.5);
+                }
             }
 
 
+
+            if (gamepad1.left_trigger==0&&gamepad1.right_trigger==0){
+                intake.setPower(0);
+            }
+            if (gamepad1.left_trigger>0&&gamepad1.right_trigger>0){
+                intake.setPower(0);
+            }else{
+                if (gamepad1.right_trigger>0){
+                    intake.setPower(1);
+                }
+                if (gamepad1.left_trigger>0){
+                    intake.setPower(-1);
+                }
+            }
 
         }
 

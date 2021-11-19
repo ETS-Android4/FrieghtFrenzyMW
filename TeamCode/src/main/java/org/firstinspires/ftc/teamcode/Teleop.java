@@ -22,12 +22,16 @@ public class Teleop extends LinearOpMode {
 
     private DcMotor lifter;
     private DcMotor intake;
+    private Servo bucket;
+
+
 
     private double theta = 22.5;
     private double delta = 45;
     private double speed = 0;
     private double calc_power;
     private double stick_directon = 0;
+    private int bucket_case = 0;
 
     private int direction = -1;
     // Setting scaling to full speed.
@@ -45,6 +49,7 @@ public class Teleop extends LinearOpMode {
        leftBack =  hardwareMap.dcMotor.get("left_back");
        lifter =  hardwareMap.dcMotor.get("lifter");
        intake =  hardwareMap.dcMotor.get("intake");
+       bucket = hardwareMap.servo.get("bucket");
        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
        waitForStart();
@@ -81,12 +86,23 @@ public class Teleop extends LinearOpMode {
 
             if (gamepad1.dpad_up==true&&gamepad1.dpad_down==true){
                 lifter.setPower(0);
-            }else{
-                if (gamepad1.dpad_up==true){
-                    lifter.setPower(-.5);
+            }else {
+                boolean ison = false;
+                if (gamepad1.dpad_down==true&&gamepad1.dpad_up == true){
+                    lifter.setPower(0);
+                }else{
+                    if (gamepad1.dpad_up == true){
+                        lifter.setPower(-.5);
+                        ison = true;
+                    }
+                    if (gamepad1.dpad_down == true){
+                        lifter.setPower(.5);
+                        ison= true;
+                    }
                 }
-                if (gamepad1.dpad_down==true){
-                    lifter.setPower(.5);
+
+                if (ison == false){
+                    lifter.setPower(0);
                 }
             }
 
@@ -106,6 +122,20 @@ public class Teleop extends LinearOpMode {
                 }
             }
 
+            switch (bucket_case) {
+
+                case 0:
+                    if(gamepad1.a == true){
+                        bucket.setPosition(.5);
+                        bucket_case++;
+                        break;
+
+                    }
+                case 1:
+
+
+
+            }
         }
 
 

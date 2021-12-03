@@ -6,10 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 
 @TeleOp(name = "TeleOp", group = "teleop")
 
@@ -22,7 +26,7 @@ public class Teleop extends LinearOpMode {
 
     private DcMotor lifter;
     private DcMotor intake;
-    private Servo bucket;
+    private CRServo bucket;
 
 
 
@@ -31,12 +35,15 @@ public class Teleop extends LinearOpMode {
     private double speed = 0;
     private double calc_power;
     private double stick_directon = 0;
-    private int bucket_case = 0;
+    private int bucket_case = 1;
 
     private int direction = -1;
     // Setting scaling to full speed.
     private double scaleFactor = 1;
     private double scaleTurningSpeed = .8;
+
+    public static boolean SwitchBucket = true;
+    boolean BucketPressed = false;
 
     String drivingState = "";
 
@@ -49,10 +56,13 @@ public class Teleop extends LinearOpMode {
        leftBack =  hardwareMap.dcMotor.get("left_back");
        lifter =  hardwareMap.dcMotor.get("lifter");
        intake =  hardwareMap.dcMotor.get("intake");
-       bucket = hardwareMap.servo.get("bucket");
+       bucket = hardwareMap.crservo.get("bucket");
+
        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+
        waitForStart();
+
 
 
         while (opModeIsActive()) {
@@ -121,22 +131,59 @@ public class Teleop extends LinearOpMode {
                     intake.setPower(-1);
                 }
             }
+            if (gamepad1.b==true){
 
-            switch (bucket_case) {
 
-                case 0:
-                    if(gamepad1.a == true){
-                        bucket.setPosition(.5);
-                        bucket_case++;
-                        break;
+                if (SwitchBucket == true){
 
+                    if (BucketPressed==false){
+                        BucketSwitch();
                     }
-                case 1:
 
 
 
+                }
+                BucketPressed = true;
+            }else{
+                BucketPressed = false;
             }
+
+
+
+
+            telemetry.addData("case1: ",bucket_case);
+            telemetry.addData("gamepad1 b ",gamepad1.b);
+            telemetry.addData("Bucket direction: ",bucket.getPower());
+
+            telemetry.update();
         }
+
+
+    }
+    void BucketSwitch(){
+        //CRservo's are continuous rotation servo's therefore go spinny sometimes, maybe use direction method
+        //Getting power is getting position.
+        SwitchBucket = false;
+        if (bucket_case == 0){
+            bucket.setPower(-1);
+        }
+        if (bucket_case == 1){
+            //Set speed belows
+            bucket.setPower(.7);
+        }
+        rightFront.setPower(0);
+        leftFront.setPower(0);
+        rightBack.setPower(0);
+        rightBack.setPower(0);
+
+        sleep(500);
+        //bucket.setPower(0);
+        if (bucket_case == 1){
+            bucket_case=0;
+        }else{
+            bucket_case=1;
+        }
+        SwitchBucket = true;
 
 
     }

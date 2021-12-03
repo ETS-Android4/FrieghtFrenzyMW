@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -199,7 +200,7 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
                 turn  =  gamepad1.right_stick_x / 2.0;  // Reduce turn rate to 50%.
                 telemetry.addData("Manual","Drive %5.2f, Turn %5.2f", drive, turn);
             }
-            telemetry.update();
+
 
             // Calculate left and right wheel powers and send to them to the motors.
             double leftFrontPower    = Range.clip(drive + turn, -1.0, 1.0) ;
@@ -211,7 +212,9 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
             rightBack.setPower(rightBackPower);
             leftBack.setPower(leftBackPower);
 
+            telemetry.update();
             sleep(10);
+
         }
     }
 }

@@ -58,6 +58,9 @@ public class Teleop extends LinearOpMode {
        intake =  hardwareMap.dcMotor.get("intake");
        bucket = hardwareMap.crservo.get("bucket");
 
+       lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -102,11 +105,11 @@ public class Teleop extends LinearOpMode {
                     lifter.setPower(0);
                 }else{
                     if (gamepad1.dpad_up == true){
-                        lifter.setPower(-.5);
+                        lifter.setPower(-.2);
                         ison = true;
                     }
                     if (gamepad1.dpad_down == true){
-                        lifter.setPower(.5);
+                        lifter.setPower(.2);
                         ison= true;
                     }
                 }
@@ -131,29 +134,17 @@ public class Teleop extends LinearOpMode {
                     intake.setPower(-1);
                 }
             }
-            if (gamepad1.b==true){
 
-
-                if (SwitchBucket == true){
-
-                    if (BucketPressed==false){
-                        BucketSwitch();
-                    }
-
-
-
+            if (gamepad1.b){
+                if (SwitchBucket){
+                    SwitchBucket = false;
+                    BucketSwitch();
                 }
-                BucketPressed = true;
-            }else{
-                BucketPressed = false;
             }
-
-
-
 
             telemetry.addData("case1: ",bucket_case);
             telemetry.addData("gamepad1 b ",gamepad1.b);
-            telemetry.addData("Bucket direction: ",bucket.getPower());
+            telemetry.addData("Lifter value: ", lifter.getCurrentPosition()*100);
 
             telemetry.update();
         }
@@ -163,20 +154,21 @@ public class Teleop extends LinearOpMode {
     void BucketSwitch(){
         //CRservo's are continuous rotation servo's therefore go spinny sometimes, maybe use direction method
         //Getting power is getting position.
-        SwitchBucket = false;
+
         if (bucket_case == 0){
             bucket.setPower(-1);
         }
         if (bucket_case == 1){
             //Set speed belows
-            bucket.setPower(.7);
+            bucket.setPower(.8);
         }
         rightFront.setPower(0);
         leftFront.setPower(0);
         rightBack.setPower(0);
         rightBack.setPower(0);
 
-        sleep(500);
+        sleep(750);
+        bucket.setPower(.8);
         //bucket.setPower(0);
         if (bucket_case == 1){
             bucket_case=0;

@@ -125,11 +125,11 @@ public class DuckBlueAuto extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED, -3, 3, 3,-3,1 );
-        DuckSpin(SPIN_SPEED, 500, .5);
-
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
+//        encoderDrive(DRIVE_SPEED, -3, 3, 3,-3,1 );
+//        DuckSpin(SPIN_SPEED, 500, .5);
+//
+//        telemetry.addData("Path", "Complete");
+//        telemetry.update();
     }
 
     /*
@@ -228,6 +228,10 @@ public class DuckBlueAuto extends LinearOpMode {
             robot.rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             //  sleep(250);   // optional pause after each move
+
+
+
+
         }
     }
 }

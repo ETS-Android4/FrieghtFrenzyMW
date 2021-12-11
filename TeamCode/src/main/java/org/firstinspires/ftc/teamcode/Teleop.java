@@ -60,16 +60,20 @@ public class Teleop extends LinearOpMode {
 
        lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
        lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-       rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+       leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
        waitForStart();
 
 
 
         while (opModeIsActive()) {
-
+            telemetry.addData("Current lifter height: ", rightFront.getCurrentPosition()*1000);
+            telemetry.update();
             drivingState = "";
 
             double r = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
@@ -78,15 +82,6 @@ public class Teleop extends LinearOpMode {
 // When the direction value is reversed this if statement inverts the addition and subtraction for turning.
 // Default mode: The robot starts with the scaleTurningSpeed set to 1, scaleFactor set to 1, and direction set to forward.
             if (direction == 1) {
-                final double v1 = (r * Math.cos(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
-                final double v2 = (r * Math.sin(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
-                final double v3 = (r * Math.sin(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
-                final double v4 = (r * Math.cos(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
-                leftFront.setPower(v1);
-                rightFront.setPower(v2);
-                leftBack.setPower(v3);
-                rightBack.setPower(v4);
-            } else {
                 final double v1 = (r * Math.cos(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
                 final double v2 = (r * Math.sin(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
                 final double v3 = (r * Math.sin(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
@@ -95,20 +90,31 @@ public class Teleop extends LinearOpMode {
                 rightFront.setPower(v2);
                 leftBack.setPower(v3);
                 rightBack.setPower(v4);
+            } else {
+
+                final double v1 = (r * Math.cos(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v2 = (r * Math.sin(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v3 = (r * Math.sin(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v4 = (r * Math.cos(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                leftFront.setPower(v1);
+                rightFront.setPower(v2);
+                leftBack.setPower(v3);
+                rightBack.setPower(v4);
             }
 
-            if (gamepad1.dpad_up==true&&gamepad1.dpad_down==true){
+            //This script makes sure that the motor is not turning in two ways at one time.
+            if (gamepad2.dpad_up==true&&gamepad2.dpad_down==true){
                 lifter.setPower(0);
             }else {
                 boolean ison = false;
-                if (gamepad1.dpad_down==true&&gamepad1.dpad_up == true){
+                if (gamepad2.dpad_down==true&&gamepad2.dpad_up == true){
                     lifter.setPower(0);
                 }else{
-                    if (gamepad1.dpad_up == true){
+                    if (gamepad2.dpad_up == true){
                         lifter.setPower(-.2);
                         ison = true;
                     }
-                    if (gamepad1.dpad_down == true){
+                    if (gamepad2.dpad_down == true){
                         lifter.setPower(.2);
                         ison= true;
                     }
@@ -121,39 +127,34 @@ public class Teleop extends LinearOpMode {
 
 
 
-            if (gamepad1.left_trigger==0&&gamepad1.right_trigger==0){
+            if (gamepad2.left_trigger==0&&gamepad2.right_trigger==0){
                 intake.setPower(0);
             }
-            if (gamepad1.left_trigger>0&&gamepad1.right_trigger>0){
+            if (gamepad2.left_trigger>0&&gamepad2.right_trigger>0){
                 intake.setPower(0);
             }else{
-                if (gamepad1.right_trigger>0){
+                if (gamepad2.right_trigger>0){
                     intake.setPower(1);
                 }
-                if (gamepad1.left_trigger>0){
+                if (gamepad2.left_trigger>0){
                     intake.setPower(-1);
                 }
             }
 
-            if (gamepad1.b){
+            if (gamepad2.b){
                 if (SwitchBucket){
                     SwitchBucket = false;
                     BucketSwitch();
                 }
             }
 
-            telemetry.addData("case1: ",bucket_case);
-            telemetry.addData("gamepad1 b ",gamepad1.b);
-            telemetry.addData("Lifter value: ", lifter.getCurrentPosition()*100);
-
-            telemetry.update();
         }
 
 
     }
     void BucketSwitch(){
-        //CRservo's are continuous rotation servo's therefore go spinny sometimes, maybe use direction method
-        //Getting power is getting position.
+        //This is how we switch the buckets point in which it changes which way it is going when we hold
+        //the button B on controller 1.
 
         if (bucket_case == 0){
             bucket.setPower(-1);
@@ -162,14 +163,14 @@ public class Teleop extends LinearOpMode {
             //Set speed belows
             bucket.setPower(.8);
         }
+        //Power is position in CRservos.
         rightFront.setPower(0);
         leftFront.setPower(0);
         rightBack.setPower(0);
         rightBack.setPower(0);
 
-        sleep(750);
+        sleep(1000 );
         bucket.setPower(.8);
-        //bucket.setPower(0);
         if (bucket_case == 1){
             bucket_case=0;
         }else{

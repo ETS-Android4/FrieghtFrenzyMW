@@ -66,8 +66,8 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="DuckBlueAuto", group="A")
-public class DuckBlueAuto extends LinearOpMode {
+@Autonomous(name="WarehouseAuto", group="A")
+public class WarehouseAuto extends LinearOpMode {
 
     /* Declare OpMode members. */
     //HardwareMW robot = new HardwareMW();   // Use a MW hardware
@@ -90,7 +90,7 @@ public class DuckBlueAuto extends LinearOpMode {
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.3;
+    static final double     DRIVE_SPEED             = 0.7;
     static final double     TURN_SPEED              = 0.5;
 
     float lastspeed = 0;
@@ -139,21 +139,11 @@ public class DuckBlueAuto extends LinearOpMode {
         //9.2 in per unit
         sleep(500);
 
-        float distance = .22f;
-        encoderDrive(DRIVE_SPEED, distance, -distance, distance, -distance, 1);
-        sleep(500);
+        float distance = 3f;
+        encoderDrive(DRIVE_SPEED, distance, distance, distance, distance, 1);
+        sleep(5000);
 
-        for (int i = 0; i<9; i++){
-            telemetry.addData("currentspin: ",i);
-            telemetry.update();
-            duckspin.setPower(-1);
-            sleep(2200);
-            duckspin.setPower(0);
-            sleep(1500);
-        }
-        encoderDrive(1, -distance*.75f, -distance*.75f, -distance*.75f, -distance*.75f, 1);
-        float distance2 = .1f;
-        encoderDrive(1, distance2, -distance2, distance2, -distance2, 1);
+
 
 
 

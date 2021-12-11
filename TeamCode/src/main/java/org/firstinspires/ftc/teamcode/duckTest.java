@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
@@ -75,21 +76,34 @@ public class duckTest extends LinearOpMode {
     private DcMotor rightBack;
     private DcMotor leftBack;
 
+    private DcMotor duckspin;
     private DcMotor lifter;
     private DcMotor intake;
     private CRServo bucket;
     private ElapsedTime runtime = new ElapsedTime();
 
-    static final double COUNTS_PER_MOTOR_REV = 1440;    // eg: TETRIX Motor Encoder
-    static final double DRIVE_GEAR_REDUCTION = 2.0;     // This is < 1.0 if geared UP
-    static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
-    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+    HardwarePushbot         robot   = new HardwarePushbot();   // Use a Pushbot's hardware
+    //private ElapsedTime     runtime = new ElapsedTime();
+
+    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
+    static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
+    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double DRIVE_SPEED = 0.6;
-    static final double TURN_SPEED = 0.5;
+    static final double     DRIVE_SPEED             = 0.3;
+    static final double     TURN_SPEED              = 0.5;
+
+    float lastspeed = 0;
+    // Speed is set to strafe or forward motion.
+    float lastmode = 0;
+    //If lastmode is equal to 0, than it is in forward mode, if it is 1, than it is under strafe mode.
+    boolean fr = false;
+    //Fr referse to "Forward Right" We can get whether or not it is moving forward or right on the strafe
+    //move functions.
 
     @Override
     public void runOpMode() {
+
 
         rightFront =  hardwareMap.dcMotor.get("right_front");
         rightBack =  hardwareMap.dcMotor.get("right_back");
@@ -97,21 +111,82 @@ public class duckTest extends LinearOpMode {
         leftBack =  hardwareMap.dcMotor.get("left_back");
         lifter =  hardwareMap.dcMotor.get("lifter");
         intake =  hardwareMap.dcMotor.get("intake");
+        duckspin =  hardwareMap.dcMotor.get("duck_spinner");
         bucket = hardwareMap.crservo.get("bucket");
+
+        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        telemetry.addData("leftBackpos", leftBack.getCurrentPosition());
         leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //leftBack.setTargetPosition(1000);
-
-
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         // Wait for the game to start (driver presses PLAY)
+        telemetry.addData("Path0",  "Starting at %7d :%7d",
+                leftBack.getCurrentPosition(),
+                rightBack.getCurrentPosition());
+        telemetry.update();
+
         waitForStart();
+        //encoderDrive(DRIVE_SPEED, .1f, .1f, -.1f, -.1f, 5.0);
+        //9.2 in per unit
+        sleep(500);
+
+        float distance = .22f;
+        encoderDrive(DRIVE_SPEED, distance, -distance, distance, -distance, 1);
+        sleep(500);
+
+        for (int i = 0; i<9; i++){
+            telemetry.addData("currentspin: ",i);
+            telemetry.update();
+            duckspin.setPower(-1);
+            sleep(2200);
+            duckspin.setPower(0);
+            sleep(1500);
+        }
+        encoderDrive(1, -distance*.75f, -distance*.75f, -distance*.75f, -distance*.75f, 1);
+        float distance2 = .1f;
+        encoderDrive(1, distance2, -distance2, distance2, -distance2, 1);
+
+
+
+        //This while loops calculates how long to wait until it should move to the next step.
+
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
         sleep(1000);
+        telemetry.addData("Path", "Complete");
+        telemetry.update();
+    }
+    void movefront(float distance){
+        encoderDrive(DRIVE_SPEED, distance, distance, distance, distance, 1);
+    }
+    void strafe(float distance, boolean right)
+    {
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lastmode = 1;
+        distance = distance/1000;
+        lastspeed = distance;
+        //Set mode speed distance etc
+        if (right == false){
+            encoderDrive(DRIVE_SPEED, -1*distance, -1*distance, distance, distance, 5.0);
+            fr = true;
+        }else{
+            encoderDrive(DRIVE_SPEED, distance, distance, -1*distance, -1*distance, 5.0);
+            fr = false;
+        }
     }
 
 
@@ -124,68 +199,68 @@ public class duckTest extends LinearOpMode {
      *  3) Driver stops the opmode running.
      */
     public void encoderDrive(double speed,
-                             double leftInches, double rightInches,
+                             double leftbackInches, double rightbackInches, double rightfrontInches, double leftfrontInches,
                              double timeoutS) {
-        int newLeftTarget;
-        int newRightTarget;
+        int newLeftBackTarget;
+        int newLeftFrontTarget;
+        int newRightBackTarget;
+        int newRightFrontTarget;
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
 
+            // Determine new target position, and pass to motor controller
+            newLeftBackTarget = leftBack.getCurrentPosition() + (int)(leftbackInches * COUNTS_PER_INCH);
+            newLeftFrontTarget = leftFront.getCurrentPosition() + (int)(leftfrontInches * COUNTS_PER_INCH);
+            newRightBackTarget = rightBack.getCurrentPosition() + (int)(rightbackInches * COUNTS_PER_INCH);
+            newRightFrontTarget = rightFront.getCurrentPosition() + (int)(rightfrontInches * COUNTS_PER_INCH);
+            leftBack.setTargetPosition(newLeftBackTarget);
+            leftFront.setTargetPosition(newLeftFrontTarget);
+            rightBack.setTargetPosition(newRightBackTarget);
+            rightFront.setTargetPosition(newRightFrontTarget);
+
+            // Turn On RUN_TO_POSITION
             leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
             runtime.reset();
-            leftBack.setPower(.5);
+            leftBack.setPower(Math.abs(speed));
+            leftFront.setPower(Math.abs(speed));
+            rightBack.setPower(Math.abs(speed));
+            rightFront.setPower(Math.abs(speed));
 
-            rightBack.setPower(.5);
-
-
-//            // Determine new target position, and pass to motor controller
-//            newLeftTarget = robot.leftDrive.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
-//            newRightTarget = robot.rightDrive.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
-//            robot.leftDrive.setTargetPosition(newLeftTarget);
-//            robot.rightDrive.setTargetPosition(newRightTarget);
-//
-//            // Turn On RUN_TO_POSITION
-//            robot.leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            robot.rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//
-//            // reset the timeout time and start motion.
-//            runtime.reset();
-//            robot.leftDrive.setPower(Math.abs(speed));
-//            robot.rightDrive.setPower(Math.abs(speed));
-//
-//            // keep looping while we are still active, and there is time left, and both motors are running.
-//            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-//            // its target position, the motion will stop.  This is "safer" in the event that the robot will
-//            // always end the motion as soon as possible.
-//            // However, if you require that BOTH motors have finished their moves before the robot continues
-//            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
             while (opModeIsActive() &&
                     (runtime.seconds() < timeoutS) &&
-                    (rightBack.isBusy())) {
+                    (leftBack.isBusy() && rightBack.isBusy())&&leftFront.isBusy()&& rightFront.isBusy()) {
 
                 // Display it for the driver.
-
-                telemetry.addData("Path1",  "Running to %7d :%7d", 1000,  1000);
+                //telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
                 telemetry.addData("Path2",  "Running at %7d :%7d",
                         leftBack.getCurrentPosition(),
                         rightBack.getCurrentPosition());
-
                 telemetry.update();
-//            }
-//
-//            // Stop all motion;
-//            robot.leftDrive.setPower(0);
-//            robot.rightDrive.setPower(0);
-//
-//            // Turn off RUN_TO_POSITION
-//            robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-                //  sleep(250);   // optional pause after each move
-
             }
-            sleep(300);
+
+            // Stop all motion;
+            leftBack.setPower(0);
+            leftFront.setPower(0);
+            rightBack.setPower(0);
+            rightFront.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
 }

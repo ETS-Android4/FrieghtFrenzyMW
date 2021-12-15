@@ -90,7 +90,7 @@ public class DuckRedAuto extends LinearOpMode {
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.3;
+    static final double     DRIVE_SPEED             = 0.1;
     static final double     TURN_SPEED              = 0.5;
 
     float lastspeed = 0;
@@ -137,20 +137,26 @@ public class DuckRedAuto extends LinearOpMode {
         waitForStart();
         //encoderDrive(DRIVE_SPEED, .1f, .1f, -.1f, -.1f, 5.0);
         //9.2 in per unit
+
         sleep(500);
 
-        float distance = .1532f;
-        encoderDrive(DRIVE_SPEED, distance, distance, distance, distance, 1);
+        float distance = .08f;
+        encoderDrive(DRIVE_SPEED, -distance, distance, -distance, distance, 1);
         sleep(500);
+        //Strafe to allign
+        float distance2 = 2.2f;
 
-        for (int i = 0; i<9; i++){
-            telemetry.addData("currentspin: ",i);
-            telemetry.update();
-            duckspin.setPower(-1);
-            sleep(2200);
-            duckspin.setPower(0);
-            sleep(1500);
-        }
+        encoderDrive(DRIVE_SPEED, distance2, distance2, distance2, distance2, 1);
+        //move towards spinner
+        float distance3 = .20f;
+        duckspin.setPower(-.5);
+        sleep(2200*4);
+        duckspin.setPower(0);
+        sleep(1500);
+        //Spin duck spinner
+        encoderDrive(DRIVE_SPEED, (-distance3*9f)*1.7, (distance3*.9f)*1.7, (-distance3*.9f)*1.6, (distance3*.9f)*2, 1);
+        //Drive to the point zone
+
 
 
 

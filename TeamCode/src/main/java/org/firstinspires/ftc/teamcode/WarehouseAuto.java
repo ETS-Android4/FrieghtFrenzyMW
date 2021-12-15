@@ -139,7 +139,7 @@ public class WarehouseAuto extends LinearOpMode {
         //9.2 in per unit
         sleep(500);
 
-        float distance = 3f;
+        float distance = .44f;
         encoderDrive(DRIVE_SPEED, distance, distance, distance, distance, 1);
         sleep(5000);
 

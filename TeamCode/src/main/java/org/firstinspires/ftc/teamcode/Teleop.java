@@ -24,6 +24,7 @@ public class Teleop extends LinearOpMode {
     private DcMotor rightBack;
     private DcMotor leftBack;
 
+    private DcMotor duckspinner;
     private DcMotor lifter;
     private DcMotor intake;
     private CRServo bucket;
@@ -41,6 +42,7 @@ public class Teleop extends LinearOpMode {
     // Setting scaling to full speed.
     private double scaleFactor = 1;
     private double scaleTurningSpeed = .8;
+    //Previously 2
 
     public static boolean SwitchBucket = true;
     boolean BucketPressed = false;
@@ -57,6 +59,7 @@ public class Teleop extends LinearOpMode {
        lifter =  hardwareMap.dcMotor.get("lifter");
        intake =  hardwareMap.dcMotor.get("intake");
        bucket = hardwareMap.crservo.get("bucket");
+       duckspinner = hardwareMap.dcMotor.get("duck_spinner");
 
        lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
        lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -100,6 +103,22 @@ public class Teleop extends LinearOpMode {
                 rightFront.setPower(v2);
                 leftBack.setPower(v3);
                 rightBack.setPower(v4);
+            }
+            int input = 0;
+            if (gamepad2.dpad_right){
+                input++;
+            }
+            if (gamepad2.dpad_left){
+                input--;
+            }
+            if (input == 1){
+                duckspinner.setPower(.8f);
+            }
+            if (input == -1){
+                duckspinner.setPower(-.8f);
+            }
+            if (input == 0){
+                duckspinner.setPower(0);
             }
 
             //This script makes sure that the motor is not turning in two ways at one time.

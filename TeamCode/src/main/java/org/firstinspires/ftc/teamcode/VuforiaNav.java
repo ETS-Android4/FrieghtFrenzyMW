@@ -47,6 +47,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +89,15 @@ import java.util.List;
 @TeleOp(name="Vuforia Field Nav", group ="Concept")
 public class VuforiaNav extends LinearOpMode {
 
+    private DcMotor rightFront;
+    private DcMotor leftFront;
+    private DcMotor rightBack;
+    private DcMotor leftBack;
+
+    private DcMotor duckspinner;
+    private DcMotor lifter;
+    private DcMotor intake;
+    private CRServo bucket;
     // IMPORTANT:  For Phone Camera, set 1) the camera source and 2) the orientation, based on how your phone is mounted:
     // 1) Camera Source.  Valid choices are:  BACK (behind screen) or FRONT (selfie side)
     // 2) Phone Orientation. Choices are: PHONE_IS_PORTRAIT = true (portrait) or PHONE_IS_PORTRAIT = false (landscape)
@@ -115,7 +137,19 @@ public class VuforiaNav extends LinearOpMode {
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
 
+    float Robotx = 0f;
+    float Roboty = 0f;
+
     @Override public void runOpMode() {
+        rightFront =  hardwareMap.dcMotor.get("right_front");
+        rightBack =  hardwareMap.dcMotor.get("right_back");
+        leftFront =  hardwareMap.dcMotor.get("left_front");
+        leftBack =  hardwareMap.dcMotor.get("left_back");
+        lifter =  hardwareMap.dcMotor.get("lifter");
+        intake =  hardwareMap.dcMotor.get("intake");
+        bucket = hardwareMap.crservo.get("bucket");
+        duckspinner = hardwareMap.dcMotor.get("duck_spinner");
+
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * To get an on-phone camera preview, use the code below.
@@ -234,6 +268,13 @@ public class VuforiaNav extends LinearOpMode {
                 if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                     telemetry.addData("Visible Target", trackable.getName());
                     targetVisible = true;
+                    if (trackable.getName() == "Blue Storage"){
+//                        rightFront.setPower(.3f);
+//                        leftFront.setPower(.3f);
+//                        rightBack.setPower(.3f);
+//                        leftBack.setPower(.3f);
+                    }
+                    //CHECK IF VISIBLE HERE
 
                     // getUpdatedRobotLocation() will return null if no new information is available since
                     // the last time that call was made, or if the trackable is not currently visible.
@@ -244,6 +285,7 @@ public class VuforiaNav extends LinearOpMode {
                     break;
                 }
             }
+
 
             // Provide feedback as to where the robot is located (if we know).
             if (targetVisible) {
@@ -260,6 +302,14 @@ public class VuforiaNav extends LinearOpMode {
                 telemetry.addData("Visible Target", "none");
             }
             telemetry.update();
+
+        }
+
+        if (isStopRequested()){
+            rightFront.setPower(0f);
+            leftFront.setPower(0f);
+            rightBack.setPower(0f);
+            leftBack.setPower(0f);
         }
 
         // Disable Tracking when we are done;
@@ -278,5 +328,10 @@ public class VuforiaNav extends LinearOpMode {
         aTarget.setName(targetName);
         aTarget.setLocation(OpenGLMatrix.translation(dx, dy, dz)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, rx, ry, rz)));
+
+
+        if (targetName == "Blue Storage"){
+
+        }
     }
 }

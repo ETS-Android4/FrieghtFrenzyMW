@@ -41,6 +41,8 @@ public class Teleop extends LinearOpMode {
     private int direction = -1;
     // Setting scaling to full speed.
     private double scaleFactor = 1;
+    private double Slow = .5;
+    private double Fast = 1;
     private double scaleTurningSpeed = .8;
     //Previously 2
 
@@ -65,18 +67,22 @@ public class Teleop extends LinearOpMode {
        lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        duckspinner.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        duckspinner.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-       leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+       rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
+       //leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        //bucket.setPower(0);
        waitForStart();
 
+       while (opModeIsActive()) {
 
-
-        while (opModeIsActive()) {
-            telemetry.addData("Current lifter height: ", rightFront.getCurrentPosition()*1000);
-            telemetry.update();
+            telemetry.addData("Current lifter height: ", lifter.getCurrentPosition()*1000);
+            //telemetry.update();
+            //telemetry.addData("Duckspinner Encoder", duckspinner.getCurrentPosition());
             drivingState = "";
 
             double r = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
@@ -104,6 +110,7 @@ public class Teleop extends LinearOpMode {
                 leftBack.setPower(v3);
                 rightBack.setPower(v4);
             }
+            //Duck spin
             int input = 0;
             if (gamepad2.dpad_right){
                 input++;
@@ -120,14 +127,24 @@ public class Teleop extends LinearOpMode {
             if (input == 0){
                 duckspinner.setPower(0);
             }
+            //DuckSpinner
+
+           //SLow and fast mode
+            if (gamepad1.dpad_up){
+                scaleFactor = Fast;
+
+            }
+            if (gamepad1.dpad_down){
+                scaleFactor = Slow;
+            }
 
             //This script makes sure that the motor is not turning in two ways at one time.
             if (gamepad2.dpad_up==true&&gamepad2.dpad_down==true){
-                lifter.setPower(0);
+                lifter.setPower(-0.0001);
             }else {
                 boolean ison = false;
                 if (gamepad2.dpad_down==true&&gamepad2.dpad_up == true){
-                    lifter.setPower(0);
+                    lifter.setPower(-0.0001);
                 }else{
                     if (gamepad2.dpad_up == true){
                         lifter.setPower(-.2);
@@ -140,33 +157,41 @@ public class Teleop extends LinearOpMode {
                 }
 
                 if (ison == false){
-                    lifter.setPower(0);
+                    lifter.setPower(-0.0001);
                 }
             }
-
+            telemetry.addData("lifterpos", lifter.getCurrentPosition()*10000);
+            telemetry.update();
+            //Lifter
 
 
             if (gamepad2.left_trigger==0&&gamepad2.right_trigger==0){
+                //small amount so that the lifter does not fall, keeps the motor engaged
                 intake.setPower(0);
             }
             if (gamepad2.left_trigger>0&&gamepad2.right_trigger>0){
                 intake.setPower(0);
             }else{
                 if (gamepad2.right_trigger>0){
-                    intake.setPower(1);
-                }
-                if (gamepad2.left_trigger>0){
                     intake.setPower(-1);
                 }
+                if (gamepad2.left_trigger>0){
+                    intake.setPower(1);
+                }
             }
-
+            //Intake
             if (gamepad2.b){
                 if (SwitchBucket){
                     SwitchBucket = false;
                     BucketSwitch();
                 }
             }
-
+            //BucketSwitch
+           if(gamepad2.b){
+               bucket.setPower(-.8f);
+           } else {
+               bucket.setPower(.9);
+           }
         }
 
 
@@ -175,27 +200,29 @@ public class Teleop extends LinearOpMode {
         //This is how we switch the buckets point in which it changes which way it is going when we hold
         //the button B on controller 1.
 
-        if (bucket_case == 0){
-            bucket.setPower(-1);
-        }
-        if (bucket_case == 1){
-            //Set speed belows
-            bucket.setPower(.8);
-        }
-        //Power is position in CRservos.
-        rightFront.setPower(0);
-        leftFront.setPower(0);
-        rightBack.setPower(0);
-        rightBack.setPower(0);
 
-        sleep(1000 );
-        bucket.setPower(.8);
-        if (bucket_case == 1){
-            bucket_case=0;
-        }else{
-            bucket_case=1;
-        }
-        SwitchBucket = true;
+
+//        if (bucket_case == 0){
+//            bucket.setPower(-1);
+//        }
+//        if (bucket_case == 1){
+//            //Set speed belows
+//            bucket.setPower(.8);
+//        }
+//        //Power is position in CRservos.
+//        rightFront.setPower(0);
+//        leftFront.setPower(0);
+//        rightBack.setPower(0);
+//        rightBack.setPower(0);
+//
+//        sleep(1000 );
+//        bucket.setPower(.8);
+//        if (bucket_case == 1){
+//            bucket_case=0;
+//        }else{
+//            bucket_case=1;
+//        }
+//        SwitchBucket = true;
 
 
     }

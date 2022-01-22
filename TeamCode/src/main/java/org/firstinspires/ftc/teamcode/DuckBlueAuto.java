@@ -115,7 +115,8 @@ public class DuckBlueAuto extends LinearOpMode {
         bucket = hardwareMap.crservo.get("bucket");
 
         rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        //leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -139,18 +140,21 @@ public class DuckBlueAuto extends LinearOpMode {
         //9.2 in per unit
         sleep(500);
 
-        float distance = 1.2f;
-        encoderDrive(DRIVE_SPEED, distance, -distance, distance, -distance, 1);
+        float distance = .25f;
+        float distancex = 1;
+        encoderDrive(1, distance*distancex, -distance*distancex, distance*distancex, -distance*distancex, 1);
+        //encoderDrive(1, distance*distancex, -distance*distancex, distance*distancex, -distance*distancex, 1);
         sleep(500);
 
         duckspin.setPower(-.2);
         sleep(2200*8);
+        //sleep(100*8);
         duckspin.setPower(0);
         sleep(1500);
 
         encoderDrive(1, -distance*.75f, -distance*.75f, -distance*.75f, -distance*.75f, 1);
         float distance2 = .1f;
-        encoderDrive(1, distance2, -distance2, distance2, -distance2, 1);
+        encoderDrive(.8f, distance2*distancex, -distance2*distancex, distance2*distancex, -distance2*distancex, 1);
 
 
 
@@ -258,6 +262,7 @@ public class DuckBlueAuto extends LinearOpMode {
             leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         }
     }
 }

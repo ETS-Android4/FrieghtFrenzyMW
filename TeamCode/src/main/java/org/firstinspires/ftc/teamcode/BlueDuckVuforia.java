@@ -86,9 +86,9 @@ import java.util.List;
 
 
 
-@Autonomous(name="VuforiaHubBlue", group ="Concept")
+@Autonomous(name="VuforiaDuckBlue", group ="Concept")
 //@Disabled
-public class BlueHubVuforia extends LinearOpMode {
+public class BlueDuckVuforia extends LinearOpMode {
 
     //X = leftright
     //Farther more great number
@@ -116,6 +116,8 @@ public class BlueHubVuforia extends LinearOpMode {
     private static final float halfTile         = 12 * mmPerInch;
     private static final float oneAndHalfTile   = 36 * mmPerInch;
 
+
+
     // Class Members
     private ElapsedTime runtime = new ElapsedTime();
     private OpenGLMatrix lastLocation   = null;
@@ -127,8 +129,11 @@ public class BlueHubVuforia extends LinearOpMode {
     private DcMotor rightBack;
     private DcMotor leftBack;
     private CRServo bucket;
+    //private VoltageSensor = null;
+
+    boolean foundbluestorage = false;
+
     private boolean targetVisible       = false;
-    private double lifterSF = 0;
 
     boolean afl = false;
     int currentstep = 0;
@@ -141,23 +146,10 @@ public class BlueHubVuforia extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = .1;
     static final double     TURN_SPEED              = 0.5;
+
     //Away from leadge
 
-    double getBatteryVoltage() {
-        double result = Double.POSITIVE_INFINITY;
-        for (VoltageSensor sensor : hardwareMap.voltageSensor) {
-            double voltage = sensor.getVoltage();
-            if (voltage > 0) {
-                result = Math.min(result, voltage);
-            }
-        }
-        return result;
-    }
-
-
-
     @Override public void runOpMode() {
-
 
 
         // Connect to the camera we are to use.  This name must match what is set up in Robot Configuration
@@ -300,25 +292,18 @@ public class BlueHubVuforia extends LinearOpMode {
 
         targets.activate();
         while (!isStopRequested()) {
-            /**
-             * VOLTAGE SETTER
-             */
-            if (getBatteryVoltage() > 15.5 ){ lifterSF = .60;}
-            if (getBatteryVoltage() > 15 && getBatteryVoltage() < 15.5) {lifterSF = .65;}
-            if (getBatteryVoltage() > 14.5 && getBatteryVoltage() < 15) {lifterSF = .70;}
-            if (getBatteryVoltage() > 14 && getBatteryVoltage() < 14.5) {lifterSF = .75;}
-            if (getBatteryVoltage() > 13.5 && getBatteryVoltage() < 14) {lifterSF = .80;}
-            if (getBatteryVoltage() > 13 && getBatteryVoltage() < 13.5) {lifterSF = .85;}
-            if (getBatteryVoltage() > 12.5 && getBatteryVoltage() < 13) {lifterSF = .90;}
-            if (getBatteryVoltage() > 12 && getBatteryVoltage() < 12.5) {lifterSF = .95;}
-            if (getBatteryVoltage() > 11.5 && getBatteryVoltage() < 12) {lifterSF = 1;}
+
+
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
+            foundbluestorage = false;
             for (VuforiaTrackable trackable : allTrackables) {
                 if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                     //telemetry.addData("Visible Target", trackable.getName());
                     targetVisible = true;
-
+                    if (trackable.getName() == "Blue Storage"){
+                        foundbluestorage = true;
+                    }
                     // getUpdatedRobotLocation() will return null if no new information is available since
                     // the last time that call was made, or if the trackable is not currently visible.
                     OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
@@ -329,23 +314,22 @@ public class BlueHubVuforia extends LinearOpMode {
                 }
             }
             HandleMovement(lastLocation);
-            if (targetVisible){
+            if (foundbluestorage){
 
-                rightFront.setPower(0);
-                rightBack.setPower(0);
-                leftFront.setPower(0);
-                leftBack.setPower(0);
+                stopM();
                 afl = true;
             }else{
                 if (afl == false){
-                    rightFront.setPower(-.3f);
-                    rightBack.setPower(-.3f);
-                    leftFront.setPower(-.3f);
-                    leftBack.setPower(-.3f);
+
+                    straferight(.4f);
+                    sleep(300);
+                    straferight(-.4f);
+                    sleep(100);
+                    stopM();
+                    sleep(500);
                 }
 
             }
-
 
             // Provide feedback as to where the robot is located (if we know).
             if (targetVisible) {
@@ -361,10 +345,11 @@ public class BlueHubVuforia extends LinearOpMode {
             else {
                 telemetry.addData("Visible Target", "none");
             }
+            //telemetry.addData("Voltage", hardwareMap.voltageSensor.get("Motor Controller 1").getVoltage());
             telemetry.update();
         }
 
-        // Disable Tracking when we are done
+        // Disable Tracking when we are done;
         targets.deactivate();
     }
 
@@ -392,132 +377,57 @@ public class BlueHubVuforia extends LinearOpMode {
 
 
         if (afl == true){
+
             if (currentstep == 0){
-                //Move to sweetspot
-                VectorF translation = trans.getTranslation();
-                int xpos = 0;
-                int ypos = 28;
+                float xpos = 0;
+                float ypos = 30.6f;
                 //Sweet spot
                 float speed = .5f;
-
+                VectorF translation = trans.getTranslation();
                 if(translation.get(1)/mmPerInch < ypos){
-                    forward(-.6f);
+                    straferight(-.8f);
                     sleep(100);
                     stopM();
-                    currentstep=3;
+                    sleep(500);
+                    currentstep++;
                 }else{
-
-                    forward(.6f);
+                    straferight(.8f);
 
                 }
+                //y LEFT LESS RIGHT MORE
+                //Y to 32
             }
             if (currentstep == 1){
-                //Moveright slightly
-                VectorF translation = trans.getTranslation();
-                int xpos = 0;
-                int ypos = 50;
-                float speed = .5f;
-
-                if(translation.get(0)/mmPerInch < xpos){
+                //Align
+                float desiredangle = 180;
+                Orientation rotation = Orientation.getOrientation(trans, EXTRINSIC, XYZ, DEGREES);
+                if (rotation.thirdAngle > 177 && rotation.thirdAngle<183){
                     stopM();
-                    currentstep=3;
-                }else {
-                    straferight(.5f);
+                    sleep(500);
+                    currentstep ++;
+                }
+                if (rotation.thirdAngle<desiredangle){
+                    RotateRight(-.5f);
+                }
+                if (rotation.thirdAngle>desiredangle){
+                    RotateRight(.5f);
                 }
 
-                //if posx>0 move right
-                //rotating to the right is less, to the left is more
             }
             if (currentstep == 2){
-                //Align
-                float desiredangle = 90;
-                Orientation rotation = Orientation.getOrientation(trans, EXTRINSIC, XYZ, DEGREES);
-                if (rotation.thirdAngle > 87 && rotation.thirdAngle<93){
-                    stopM();
-                    currentstep++;
-                }
-                if (rotation.thirdAngle<90){
-                    RotateRight(-.3f);
-                }
-                if (rotation.thirdAngle>90){
-                    RotateRight(.3f);
-                }
+                RotateLeft(.7f);
+                sleep(900);
+                stopM();
 
+                currentstep++;
             }
 
 
         }
-        if (currentstep == 3){
-            //right
-            float distance = .32f;
-            //double leftbackInches, double rightbackInches, double rightfrontInches, double leftfrontInches
-//            rightFront.setPower(amount);
-//            rightBack.setPower(-amount);
-//            leftFront.setPower(-amount);
-//            leftBack.setPower(amount);
-            encoderDrive(1, distance, -distance, -distance, distance, .5f);
-            currentstep =5;
-        }
-        if (currentstep == 4){
-            float distance = .1f;
-            encoderDrive(1, -distance, distance, distance, -distance, .5f);
-            //forward(-.2f);
-            //sleep(100);
-            stopM();
-            currentstep++;
-        }
-        if (currentstep == 5){
-            float distance = .1f;
-            encoderDrive(1, distance, distance, distance, distance, .5f);
-            currentstep++;
-        }
 
-        if (currentstep == 6){
-            //Lift
-            lifter.setPower(-.4f * lifterSF);
-            sleep(1000);
-            lifter.setPower(0);
-            currentstep++;
-        }
-        if (currentstep == 7){
-            //Bucket
-            lifter.setPower(-.4f * lifterSF);
-            bucket.setPower(0f);
-            sleep(3000);
-            bucket.setPower(.9);
-            sleep(300);
-            lifter.setPower(.4 * lifterSF);
-            sleep(1500);
-            lifter.setPower(0);
-            currentstep++;
-        }
-        if (currentstep == 8){
-            float distance = .05f;
-            encoderDrive(1, -distance, distance, distance, -distance, .5f);
-            //sleep(400);
-            stopM();
-            currentstep++;
-        }
-        if (currentstep == 9){
-            float distance = -.8f;
-            encoderDrive(1, distance, -distance, -distance, distance, .5f);
-            stopM();
 
-            currentstep++;
-        }
-        if (currentstep == 10){
-            float distance = 1f;
-            encoderDrive(1, distance, distance, distance, distance, .5f);
-            stopM();
 
-            currentstep++;
-        }
-        telemetry.addData("Currentstep", currentstep);
-        telemetry.addData("Time", Runtime.getRuntime());
-        telemetry.addData("voltage", getBatteryVoltage());
     }
-
-    //voltage
     void SetEncoderRotation(int amount){
 
         //r- l+
@@ -642,9 +552,7 @@ public class BlueHubVuforia extends LinearOpMode {
             rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
         }
     }
-
-
-    }
-
+}
